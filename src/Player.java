@@ -5,7 +5,7 @@ public class Player {
     int wager;
     public Player(String str) {
         name = str;
-        chipsNum = 0;
+        chipsNum = 100;
         score = 0;
         wager = 0;
     }
