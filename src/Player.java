@@ -9,13 +9,19 @@ public class Player {
         score = 0;
         wager = 0;
     }
+    public void setWager(int num) {
+        wager = num;
+    }
     public String getName() {
         return name;
     }
     public int getChipsNum() {
         return chipsNum;
     }
-    public void changeChips(int num) {
-        chipsNum += num;
+    public void winChips() {
+        chipsNum += wager;
+    }
+    public void loseChips() {
+        chipsNum -= wager;
     }
 }
