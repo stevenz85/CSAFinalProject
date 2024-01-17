@@ -33,6 +33,12 @@ public class Ceelo {
             } else {
                 for (Player name : playerList) {
                     if (name.getChipsNum() > 0) {
+                        System.out.println("It's " + name.getName() + "'s turn!\nWould you like to roll the dices or check your chip balance? (r/c)");
+                        String str = sc.nextLine();
+                        while (str.equals("c")) {
+                            System.out.println(name.getName() + ", you currently have " + name.getChipsNum() + " chips!\nWould you like to roll the dices or check your chip balance again? (r/c)");
+                            str = sc.nextLine();
+                        }
                         determineIndividualWinner(name);
                     }
 
@@ -74,24 +80,33 @@ public class Ceelo {
         if (win) {
             player.winChips();
             banker.updateChips(-player.getWager());
+            if (player.getChipsNum() <= 0) {
+                System.out.println(player.getName() + " ran out of chips! They are now out of the game!");
+            }
         } else {
             player.loseChips();
             banker.updateChips(player.getWager());
         }
     }
     public void determineGameWinners() {
+        int[] topScorers = new int[]{player1.getChipsNum(), player2.getChipsNum(), player3.getChipsNum()};
+        Arrays.sort(topScorers);
+        Collections.reverse(Arrays.asList(topScorers));
+        for (int i = 0; i < topScorers.length; i ++) {
+            for (int k = 0; k < playerList.length; k ++) {
+                if (topScorers[i] == playerList[k].getChipsNum()) {
+                    Player sub = playerList[k];
+                    playerList[i] = playerList [k];
+                    playerList[k] = sub;
+                }
+            }
+        }
         if (banker.getChipsNum() == 0) {
             System.out.println("The banker has gone broke! You all have won the game!");
-            int[] scorers = {player1.getChipsNum(), player2.getChipsNum(), player3.getChipsNum()};
-            int[] topScorers = new int[3];
-            for (int i = 0; i < topScorers.length; i++) {
-                topScorers[i] = scorers[i];
-            }
-            Arrays.sort(topScorers);
-            Collections.reverse(Arrays.asList(topScorers));
         } else {
             System.out.println("The banker has won! " + player1.getName() + ", " + player2.getName() + ", and " + player3.getName() + " have all gone broke!");
         }
+        System.out.println("The top contributors in order are " + playerList[0].getName() + " with " + playerList[0].getChipsNum() + " chips!\n" + playerList[1].getName() + " with " + playerList[1].getChipsNum() + " chips!\n" + playerList[2].getName() + " with " + playerList[2].getChipsNum() + " chips!");
     }
     public String determineRoundWinners() {
         for (int i = 0; i < 1; i --) {
