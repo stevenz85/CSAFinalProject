@@ -28,21 +28,16 @@ public class Ceelo {
             setWagers();
             System.out.println("The banker is rolling the dices!");
             String winner = determineRoundWinners();
-            if (winner.equals("player") || winner.equals("banker")) {
-                roundRewards(determineRoundWinners());
-            } else {
+            if (winner.equals("player")) {
                 for (Player name : playerList) {
-                    if (name.getChipsNum() > 0) {
-                        System.out.println("It's " + name.getName() + "'s turn!\nWould you like to roll the dices or check your chip balance? (r/c)");
-                        String str = sc.nextLine();
-                        while (str.equals("c")) {
-                            System.out.println(name.getName() + ", you currently have " + name.getChipsNum() + " chips!\nWould you like to roll the dices or check your chip balance again? (r/c)");
-                            str = sc.nextLine();
-                        }
-                        determineIndividualWinner(name);
-                    }
-
+                    giveRoundRewards(name, true);
                 }
+            } else if (winner.equals("banker")) {
+                for (Player name : playerList) {
+                    giveRoundRewards(name, true);
+                }
+            } else {
+               scoreRound();
             }
         }
         determineGameWinners();
@@ -63,29 +58,20 @@ public class Ceelo {
             }
         }
     }
-    public void roundRewards(String winner) {
-        if (winner.equals("player")) {
-            player1.winChips();
-            player2.winChips();
-            player3.winChips();
-            banker.updateChips(-player1.getWager() + -player2.getWager() + -player3.getWager());
-        } else if (winner.equals("banker")) {
-            player1.loseChips();
-            player2.loseChips();
-            player3.loseChips();
-            banker.updateChips(player1.getWager() + player2.getWager() + player3.getWager());
-        }
-    }
-    public void giveRewards(Player player, boolean win) {
+    public void giveRoundRewards(Player player, boolean win) {
         if (win) {
             player.winChips();
+            System.out.println(player.getName() + " has won " + player.getWager() + " chips!");
             banker.updateChips(-player.getWager());
+            System.out.println(" The banker has has lost " + player1.getWager() + player2.getWager() + player3.getWager() + " chips!");
             if (player.getChipsNum() <= 0) {
                 System.out.println(player.getName() + " ran out of chips! They are now out of the game!");
             }
         } else {
             player.loseChips();
+            System.out.println(player.getName() + " has lost " + player.getWager() + " chips!");
             banker.updateChips(player.getWager());
+            System.out.println(" The banker has has won " + player1.getWager() + player2.getWager() + player3.getWager() + " chips!");
         }
     }
     public void determineGameWinners() {
@@ -113,16 +99,20 @@ public class Ceelo {
             rollDices();
             System.out.println("The banker rolled a " + die1.getLastRolledNum() + ", " + die2.getLastRolledNum() + ", and " + die3.getLastRolledNum() + "!");
             if (dices[0] == dices[1] && dices[1] == dices[2]) {
+                System.out.println("The banker has rolled a double!\nThe banker wins the round!");
                 return "banker";
             } else if (dices[0] == 4 && dices[1] == 5 && dices[2] == 6) {
+                System.out.println("The banker has rolled the top three numbers!\nThe banker wins the round!");
                 return "banker";
             } else if (dices[0] == 1 && dices[1] == 2 && dices[2] == 3) {
+                System.out.println("The banker has rolled the bottom three numbers!\nThe banker loses the round!");
                 return "player";
-            } else if (dices[0] == dices[1]) {
+            } else if (checkForDouble()) {
+                System.out.println("The banker has rolled a double!\nHis score is " + dices[2] + ", try to get a higher score than him!");
                 banker.setScore(dices[2]);
                 return "doubles";
             }
-            System.out.println("The banker has to roll again!");
+            System.out.println("The banker rolled no combos!\nThe banker has to roll again!");
         }
         return null;
     }
@@ -131,19 +121,55 @@ public class Ceelo {
             rollDices();
             System.out.println(player.getName() + "has rolled a " + die1.getLastRolledNum() + ", " + die2.getLastRolledNum() + ", and " + die3.getLastRolledNum() + "!");
             if (dices[0] == dices[1] && dices[1] == dices[2]) {
-                giveRewards(player, true);
+                System.out.println(player.getName() + " has rolled a double!\n" + player.getName() + " wins the round!");
+                giveRoundRewards(player, true);
             } else if (dices[0] == 4 && dices[1] == 5 && dices[2] == 6) {
-                giveRewards(player, true);
+                System.out.println(player.getName() + " has rolled the top three numbers!\n" + player.getName() + " wins the round!");
+                giveRoundRewards(player, true);
             } else if (dices[0] == 1 && dices[1] == 2 && dices[2] == 3) {
-                giveRewards(player, false);
-            } else if (dices[0] == dices[1]) {
+                System.out.println(player.getName() + " has rolled the bottom three numbers!\n" + player.getName() + " loses the round!");
+                giveRoundRewards(player, false);
+            } else if (checkForDouble()) {
                 if (dices[2] > banker.getScore()) {
-                    giveRewards(player, true);
+                    System.out.println(player.getName() + " has rolled a double!\n" + player.getName() + " scored " + dices[2] + "!\n" + player.getName() + " wins the round!");
+                    giveRoundRewards(player, true);
                 } else {
-                    giveRewards(player, false);
+                    System.out.println(player.getName() + " has rolled a double!\n" + player.getName() + " scored " + dices[2] + "!\n" + player.getName() + " loses the round!");
+                    giveRoundRewards(player, false);
                 }
             }
-            System.out.println(player.getName() + " has to roll again!");
+            System.out.println(player.getName() + " rolled no combos!\n" + player.getName() + " to roll again!");
+        }
+    }
+    public boolean checkForDouble() {
+        if (dices[0] == dices[1]) {
+            return true;
+        }
+        if (dices[1] == dices[2]) {
+            int sub = dices[2];
+            dices[2] = dices[0];
+            dices[0] = sub;
+            return true;
+        }
+        if (dices[0] == dices[2]) {
+            int sub = dices[1];
+            dices[1] = dices[2];
+            dices[2] = sub;
+            return true;
+        }
+        return false;
+    }
+    public void scoreRound() {
+        for (Player name : playerList) {
+            if (name.getChipsNum() > 0) {
+                System.out.println("It's " + name.getName() + "'s turn!\nWould you like to roll the dices or check your chip balance? (r/c)");
+                String str = sc.nextLine();
+                while (str.equals("c")) {
+                    System.out.println(name.getName() + ", you currently have " + name.getChipsNum() + " chips!\nWould you like to roll the dices or check your chip balance again? (r/c)");
+                    str = sc.nextLine();
+                }
+                determineIndividualWinner(name);
+            }
         }
     }
     public void rollDices() {
