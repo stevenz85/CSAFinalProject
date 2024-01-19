@@ -1,6 +1,7 @@
 public class Banker {
     private int chipsNum;
     private int score;
+    private boolean stillInGame;
     public Banker() {
         chipsNum = 1000;
         score = 0;
@@ -15,6 +16,8 @@ public class Banker {
         score = num;
     }
     public void updateChips(int num) {
-        chipsNum += num;
+        if (stillInGame) {
+            chipsNum += num;
+        }
     }
 }
