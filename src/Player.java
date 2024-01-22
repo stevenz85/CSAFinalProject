@@ -1,8 +1,8 @@
 public class Player {
     private String name;
     private int chipsNum;
-    private int score;
     private int wager;
+    private int score;
     private boolean stillInGame;
     public Player(String str) {
         name = str;
@@ -13,6 +13,12 @@ public class Player {
     }
     public void setWager(int num) {
         wager = num;
+    }
+    public void setScore(int num) {
+        score = num;
+    }
+    public int getScore() {
+        return score;
     }
     public String getName() {
         return name;
