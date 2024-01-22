@@ -32,14 +32,27 @@ public class Ceelo {
     public void play() {
         greetings();
         ConsoleUtility.clearScreen();
-        while (playersHaveNotLostOrWin()) {
+        while (playersHaveNotLostOrWin()) {// The game would continue looping until there is a winner
             ceeloGame();
             ConsoleUtility.clearScreen();
         }
         determineGameWinners();
     }
-    public boolean playersHaveNotLostOrWin() {
-        return banker.getChipsNum() > 0 && player1.getChipsNum() > 0 || player2.getChipsNum() > 0 || player3.getChipsNum() > 0;
+    public void initializeAll() {
+        System.out.println("Please enter player 1's name: ");
+        String name = sc.nextLine();
+        player1 = new Player(name);
+        System.out.println("Please enter player 2's name: ");
+        name = sc.nextLine();
+        player2 = new Player(name);
+        System.out.println("Please enter player 3's name: ");
+        name = sc.nextLine();
+        player3 = new Player(name);
+        banker = new Banker();
+        die1 = new Die();
+        die2 = new Die();
+        die3 = new Die();
+        playerList = new Player[]{player1, player2, player3};
     }
     public void ceeloGame() {
         printGameInfo();
@@ -126,6 +139,7 @@ public class Ceelo {
         }
         System.out.println("The top contributors in order are " + playerList[0].getName() + " with " + playerList[0].getChipsNum() + " chips!\n" + playerList[1].getName() + " with " + playerList[1].getChipsNum() + " chips!\n" + playerList[2].getName() + " with " + playerList[2].getChipsNum() + " chips!");
     }
+    //The next method orders the playerList array in such that the top contributor is first and least is last
     public void determineTopScorer() {
         int[] topScorers = new int[]{player1.getChipsNum(), player2.getChipsNum(), player3.getChipsNum()};
         Arrays.sort(topScorers);
@@ -140,58 +154,6 @@ public class Ceelo {
             }
         }
         Collections.reverse(Arrays.asList(playerList));
-    }
-    public String determineRoundWinners() {
-        for (int i = 0; i < 1;) {
-            rollDices();
-            System.out.println("The banker rolled a " + die1.getLastRolledNum() + ", " + die2.getLastRolledNum() + ", and " + die3.getLastRolledNum() + "!");
-            try {
-                Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
-            } catch (Exception e) {
-                System.out.println("error");
-            }
-            if (dices[0] == dices[1] && dices[1] == dices[2]) {
-                System.out.println("The banker has rolled a double!\nThe banker wins the round!");
-                try {
-                    Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
-                } catch (Exception e) {
-                    System.out.println("error");
-                }
-                return "banker";
-            } else if (dices[0] == 4 && dices[1] == 5 && dices[2] == 6) {
-                System.out.println("The banker has rolled the top three numbers!\nThe banker wins the round!");
-                try {
-                    Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
-                } catch (Exception e) {
-                    System.out.println("error");
-                }
-                return "banker";
-            } else if (dices[0] == 1 && dices[1] == 2 && dices[2] == 3) {
-                System.out.println("The banker has rolled the bottom three numbers!\nThe banker loses the round!");
-                try {
-                    Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
-                } catch (Exception e) {
-                    System.out.println("error");
-                }
-                return "player";
-            } else if (checkForDouble()) {
-                System.out.println("The banker has rolled a double!\nHis score is " + dices[2] + ", try to get a higher score than him!");
-                try {
-                    Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
-                } catch (Exception e) {
-                    System.out.println("error");
-                }
-                banker.setScore(dices[2]);
-                return "doubles";
-            }
-            System.out.println("The banker rolled no combos!\nThe banker has to roll again!");
-            try {
-                Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
-            } catch (Exception e) {
-                System.out.println("error");
-            }
-        }
-        return null;
     }
     public void determineIndividualWinner(Player player) {
         for (int i = 0; i < 1; i --) {
@@ -254,24 +216,6 @@ public class Ceelo {
             }
         }
     }
-    public boolean checkForDouble() {
-        if (dices[0] == dices[1]) {
-            return true;
-        }
-        if (dices[1] == dices[2]) {
-            int sub = dices[2];
-            dices[2] = dices[0];
-            dices[0] = sub;
-            return true;
-        }
-        if (dices[0] == dices[2]) {
-            int sub = dices[1];
-            dices[1] = dices[2];
-            dices[2] = sub;
-            return true;
-        }
-        return false;
-    }
     public void scoreRound() {
         int num = 0;
         for (Player name : playerList) {
@@ -318,6 +262,7 @@ public class Ceelo {
             topContributors();
         }
     }
+    //The next method prints out the top contributors and whether or not there are ties in the rankings
     public void topContributors() {
         ConsoleUtility.clearScreen();
         if (playerList[0] != playerList[1] && playerList[1] != playerList[2]) {
@@ -351,20 +296,79 @@ public class Ceelo {
             System.out.println("error");
         }
     }
-    public void initializeAll() {
-        System.out.println("Please enter player 1's name: ");
-        String name = sc.nextLine();
-        player1 = new Player(name);
-        System.out.println("Please enter player 2's name: ");
-        name = sc.nextLine();
-        player2 = new Player(name);
-        System.out.println("Please enter player 3's name: ");
-        name = sc.nextLine();
-        player3 = new Player(name);
-        banker = new Banker();
-        die1 = new Die();
-        die2 = new Die();
-        die3 = new Die();
-        playerList = new Player[]{player1, player2, player3};
+    //The next method returns who wins the current round or it returns "doubles" which signifies to the program that it should proceed with scoring and the scoring of the player's rolls from doubles
+    private String determineRoundWinners() {
+        for (int i = 0; i < 1;) {
+            rollDices();
+            System.out.println("The banker rolled a " + die1.getLastRolledNum() + ", " + die2.getLastRolledNum() + ", and " + die3.getLastRolledNum() + "!");
+            try {
+                Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
+            } catch (Exception e) {
+                System.out.println("error");
+            }
+            if (dices[0] == dices[1] && dices[1] == dices[2]) {
+                System.out.println("The banker has rolled a double!\nThe banker wins the round!");
+                try {
+                    Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
+                } catch (Exception e) {
+                    System.out.println("error");
+                }
+                return "banker";
+            } else if (dices[0] == 4 && dices[1] == 5 && dices[2] == 6) {
+                System.out.println("The banker has rolled the top three numbers!\nThe banker wins the round!");
+                try {
+                    Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
+                } catch (Exception e) {
+                    System.out.println("error");
+                }
+                return "banker";
+            } else if (dices[0] == 1 && dices[1] == 2 && dices[2] == 3) {
+                System.out.println("The banker has rolled the bottom three numbers!\nThe banker loses the round!");
+                try {
+                    Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
+                } catch (Exception e) {
+                    System.out.println("error");
+                }
+                return "player";
+            } else if (checkForDouble()) {
+                System.out.println("The banker has rolled a double!\nHis score is " + dices[2] + ", try to get a higher score than him!");
+                try {
+                    Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
+                } catch (Exception e) {
+                    System.out.println("error");
+                }
+                banker.setScore(dices[2]);
+                return "doubles";
+            }
+            System.out.println("The banker rolled no combos!\nThe banker has to roll again!");
+            try {
+                Thread.sleep(2000);  // 2000 milliseconds, or 2 seconds
+            } catch (Exception e) {
+                System.out.println("error");
+            }
+        }
+        return null;
+    }
+    //The next method returns a boolean that checks if the players are still in the game and the banker haven't lost yet
+    private boolean playersHaveNotLostOrWin() {
+        return banker.getChipsNum() > 0 && player1.getChipsNum() > 0 || player2.getChipsNum() > 0 || player3.getChipsNum() > 0;
+    }
+    private boolean checkForDouble() {
+        if (dices[0] == dices[1]) {
+            return true;
+        }
+        if (dices[1] == dices[2]) {
+            int sub = dices[2];
+            dices[2] = dices[0];
+            dices[0] = sub;
+            return true;
+        }
+        if (dices[0] == dices[2]) {
+            int sub = dices[1];
+            dices[1] = dices[2];
+            dices[2] = sub;
+            return true;
+        }
+        return false;
     }
 }
